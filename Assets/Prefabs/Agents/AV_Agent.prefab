@@ -10,7 +10,6 @@ GameObject:
   m_Component:
   - component: {fileID: 5189152271173328964}
   - component: {fileID: 1242601554734060043}
-  - component: {fileID: 2400684679437183695}
   - component: {fileID: 2421196936606606348}
   m_Layer: 6
   m_Name: Circle
@@ -93,42 +92,6 @@ SpriteRenderer:
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
   m_SpriteSortPoint: 0
---- !u!58 &2400684679437183695
-CircleCollider2D:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 65360099206869649}
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Density: 1
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_ForceSendLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_ForceReceiveLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_ContactCaptureLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_CallbackLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_IsTrigger: 1
-  m_UsedByEffector: 0
-  m_CompositeOperation: 0
-  m_CompositeOrder: 0
-  m_Offset: {x: 0, y: 0}
-  m_Radius: 0.325407
 --- !u!95 &2421196936606606348
 Animator:
   serializedVersion: 7
@@ -165,6 +128,7 @@ GameObject:
   - component: {fileID: 4399820532575833635}
   - component: {fileID: 4296790125531274332}
   - component: {fileID: 3429421133554228100}
+  - component: {fileID: 79326456259525132}
   m_Layer: 6
   m_Name: AV_Agent
   m_TagString: Untagged
@@ -202,21 +166,22 @@ MonoBehaviour:
   m_EditorClassIdentifier: '::'
   AgentName: Green FIsh
   Heading: {x: 0, y: 0}
-  Speed: 100
+  Speed: 75
   simulateAgent: 1
   Enable_RotateToHeading: 1
   Enable_Animation: 1
   enableDestination: 0
   destination: {x: 0, y: 0}
   destinationAttractionRate: 5
+  updateInterval: 0.05
   detect_layer:
     serializedVersion: 2
     m_Bits: 64
   close_radius: 1.5
   far_radius: 3
-  separation_weight: 0.15
-  alignment_weight: 0.15
-  cohesion_weight: 0.25
+  separation_weight: 0.3
+  alignment_weight: 0.25
+  cohesion_weight: 0.35
   turn_speed: 3
   apply_constant_rotation: 0
   constant_rotation: 1
@@ -228,6 +193,7 @@ MonoBehaviour:
   neighbors_far: []
   external_influence: {x: 0, y: 0}
   external_influence_decay_rate: 5
+  external_max_influence: 100
   show_debug: 0
 --- !u!50 &4647035192822121720
 Rigidbody2D:
@@ -5089,3 +5055,39 @@ MonoBehaviour:
   consumeDistance: 0.25
   hungry: 1
   agent: {fileID: 0}
+--- !u!58 &79326456259525132
+CircleCollider2D:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3522136910428697973}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Density: 1
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_ForceSendLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ForceReceiveLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ContactCaptureLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_CallbackLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_IsTrigger: 1
+  m_UsedByEffector: 0
+  m_CompositeOperation: 0
+  m_CompositeOrder: 0
+  m_Offset: {x: 0, y: 0}
+  m_Radius: 0.325407

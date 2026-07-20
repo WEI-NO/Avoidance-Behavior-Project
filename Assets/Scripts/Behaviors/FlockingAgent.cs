@@ -7,9 +7,11 @@ public class FlockingAgent : Agent2D
 {
 
     [SerializeField] LayerMask detect_layer;
+    ContactFilter2D filter2D;
 
     [Header("Flocking Information")]
     [SerializeField] float close_radius = 1.0f;
+    float close_radius_sqr;
     [SerializeField] float far_radius = 1.0f; // Heading
 
     [SerializeField] float separation_weight = 1.0f;
@@ -36,6 +38,7 @@ public class FlockingAgent : Agent2D
     // External Influence
     [SerializeField] Vector2 external_influence = Vector2.zero;
     [SerializeField] float external_influence_decay_rate = 1.0f;
+    [SerializeField] float external_max_influence = 50.0f;
 
     [Header("Debug")]
     public bool show_debug = false;
@@ -43,6 +46,13 @@ public class FlockingAgent : Agent2D
     protected override void OnStart()
     {
         RandomizeHeading();
+        filter2D = new ContactFilter2D();
+        filter2D.SetLayerMask(detect_layer);
+        filter2D.useLayerMask = true;
+
+        filter2D.useTriggers = true;
+
+        close_radius_sqr = close_radius * close_radius;
     }
 
     protected override void OnFixedUpdate()
@@ -97,18 +107,13 @@ public class FlockingAgent : Agent2D
         {
             Heading += external_influence * Time.deltaTime;
             external_influence = Vector2.Lerp(external_influence, Vector2.zero, external_influence_decay_rate * Time.deltaTime);
-            if (external_influence.magnitude <= .01f)
+            external_influence = Vector2.ClampMagnitude(external_influence, external_max_influence);
+            if (external_influence.sqrMagnitude <= .001f)
             {
                 external_influence = Vector2.zero;
             }
         }
     }
-
-    private void RandomizeHeading()
-    {
-        Heading = Random.insideUnitCircle.normalized;
-    }
-
     private Vector2 CalculateCohesion() // Heading
     {
         // Get average position of all neighbors
@@ -116,7 +121,7 @@ public class FlockingAgent : Agent2D
 
         foreach (var n in neighbors_far)
         {
-            averagePos += (Vector2)n.transform.position;
+            averagePos += n.cachedPosition;
         }
 
         Vector2 cohesion = Vector2.zero;
@@ -124,7 +129,7 @@ public class FlockingAgent : Agent2D
         if (neighbors_far.Count == 0) return cohesion;
 
         averagePos /= neighbors_far.Count;
-        cohesion = averagePos - (Vector2)transform.position;
+        cohesion = averagePos - cachedPosition;
         return cohesion;
     }
 
@@ -147,7 +152,7 @@ public class FlockingAgent : Agent2D
 
         foreach (var n in neighbors_close)
         {
-            Vector2 directionAway = transform.position - n.transform.position;
+            Vector2 directionAway = cachedPosition - n.cachedPosition;
             float distance = directionAway.magnitude;
 
             if (distance > 0f)
@@ -163,16 +168,16 @@ public class FlockingAgent : Agent2D
     {
         neighbors_close.Clear();
         neighbors_far.Clear();
-        var collisions = Physics2D.OverlapCircleAll(transform.position, far_radius, detect_layer);
-
-        foreach (var c in collisions)
+        int num_hits = Physics2D.OverlapCircle(cachedPosition, far_radius, filter2D, colliderBuffer);
+        for (int i = 0; i < num_hits; i++)
         {
-            var agent = c.GetComponentInParent<FlockingAgent>();
+            var c = colliderBuffer[i];
+            var agent = c.GetComponent<FlockingAgent>();
             if (agent != null && agent != this)
             {
                 neighbors_far.Add(agent);
-                var distance = (transform.position - agent.transform.position).magnitude;
-                if (distance <= close_radius)
+                var distance = (cachedPosition - agent.cachedPosition).sqrMagnitude;
+                if (distance <= close_radius_sqr)
                 {
                     neighbors_close.Add(agent);
                 }
@@ -190,9 +195,9 @@ public class FlockingAgent : Agent2D
         if (show_debug)
         {
             Gizmos.color = Color.red;
-            Gizmos.DrawWireSphere(transform.position, close_radius);
+            Gizmos.DrawWireSphere(cachedPosition, close_radius);
             Gizmos.color = Color.blue;
-            Gizmos.DrawWireSphere(transform.position, far_radius);
+            Gizmos.DrawWireSphere(cachedPosition, far_radius);
         }
     }
 }

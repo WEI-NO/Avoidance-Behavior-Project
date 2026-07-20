@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.UIElements;
 
 public enum AgentType
 {
@@ -18,6 +19,7 @@ public abstract class Agent2D : MonoBehaviour
     public float Speed = 10.0f;
     private Vector2 prevHeading;
     public bool simulateAgent = true;
+    protected Vector2 cachedPosition;
 
     [Header("Visual Settings")]
     [SerializeField] protected bool Enable_RotateToHeading = true;
@@ -27,6 +29,13 @@ public abstract class Agent2D : MonoBehaviour
     [SerializeField] bool enableDestination = false;
     public Vector2 destination;
     public float destinationAttractionRate = 0.5f;
+
+    [Header("Buffers")]
+    protected Collider2D[] colliderBuffer = new Collider2D[10];
+
+    [Header("Frame Separation")]
+    [SerializeField] float updateInterval = 0.1f;
+    float updateTimer = 0.0f;
 
     protected virtual void MoveAgent()
     {
@@ -68,6 +77,7 @@ public abstract class Agent2D : MonoBehaviour
     private void Start()
     {
         OnStart();
+        updateTimer = Random.Range(0, updateInterval);
     }
 
     private void Awake()
@@ -78,9 +88,17 @@ public abstract class Agent2D : MonoBehaviour
 
     void Update()
     {
+        cachedPosition = transform.position;
         OnUpdate();
+        updateTimer -= Time.deltaTime;
         if (simulateAgent)
-            UpdateAgent();
+        {
+            if (updateTimer <= 0)
+            {
+                UpdateAgent();
+                updateTimer = updateInterval;
+            }
+        }
         CleanupUpdate();
     }
 
@@ -90,6 +108,11 @@ public abstract class Agent2D : MonoBehaviour
         NudgeDirection();
         MoveAgent();
         RotateToHeading();
+    }
+
+    protected void RandomizeHeading()
+    {
+        Heading = Random.insideUnitCircle.normalized;
     }
 
     public float GetAbsoluteSpeed()

@@ -14,6 +14,7 @@ public class ImpulseSimulation : Simulator
     [SerializeField] FlockingAgent flock_agent_prefab;
     [SerializeField] float flock_spawn_cooldown = 0.5f;
     float flock_spawn_timer = 0.0f;
+    [SerializeField] Transform fishContainer;
     
 
     [Header("Debug")]
@@ -30,7 +31,8 @@ public class ImpulseSimulation : Simulator
             {
                 Vector3 mouse_position = Camera.main.ScreenToWorldPoint(Mouse.current.position.ReadValue());
                 mouse_position.z = 0.0f;
-                Instantiate(flock_agent_prefab, mouse_position, Quaternion.identity);
+                var fish = Instantiate(flock_agent_prefab, mouse_position, Quaternion.identity);
+                fish.transform.SetParent(fishContainer != null ? fishContainer : transform);
                 flock_spawn_timer = 0.0f;
             }
             mouse_right_down = true;
